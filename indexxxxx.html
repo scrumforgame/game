@@ -1,0 +1,72 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auto Jump Game</title>
+    <style>
+        body {
+            background-color: black;
+            color: white;
+            font-size: 24px;
+        }
+        #character {
+            background-color: black;
+            height: 100px;
+            width: 100px;
+            position: absolute;
+            top: 500px;
+            transition: top 200ms ease-out;
+        }
+        #enemy {
+            background-color: black;
+            height: 100px;
+            width: 100px;
+            position: absolute;
+            top: 500px;
+            left: 1000px;
+        }
+        #score {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div id="character"><img src="sartre.jpg" alt="" height="100"></div>
+    <div id="enemy"><img src="sein.jpg" alt="" height="150"></div>
+    <div id="score">Score: 0</div>
+
+    <script>
+        let enemy_left = 1000;
+        let on_ground = true;
+        let score = 0;
+
+        setInterval(() => {
+            enemy.style.left = enemy_left + 'px';
+            enemy_left -= 5;
+
+            if (on_ground && enemy_left < 100 && enemy_left > 50) {
+                jump();
+            }
+
+            if (enemy_left < 0) {
+                enemy_left = 1000;
+            }
+        }, 10);
+
+        function jump() {
+            if (!on_ground) return;
+            character.style.top = "300px";
+            on_ground = false;
+            score += 5;
+            document.getElementById("score").innerText = "Score: " + score;
+            
+            setTimeout(() => {
+                character.style.top = "500px";
+                on_ground = true;
+            }, 400);
+        }
+    </script>
+</body>
+</html>
