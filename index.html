@@ -8,52 +8,84 @@
             background-color: black;
             color: white;
             font-size: 24px;
+            text-align: center;
         }
         #character {
-            background-color: black;
+            background-color: red;
             height: 100px;
             width: 100px;
             position: absolute;
             top: 500px;
-            transition: top 200ms ease-out;
+            transition: top 300ms ease-out;
+            display: none;
         }
         #enemy {
-            background-color: black;
+            background-color: blue;
             height: 100px;
             width: 100px;
             position: absolute;
             top: 500px;
             left: 1000px;
+            display: none;
         }
         #score {
             position: absolute;
             top: 20px;
             left: 20px;
+            display: none;
+        }
+        #startScreen {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
         }
     </style>
 </head>
 <body>
-    <div id="character"><img src="sartre.jpg" alt="" height="100"></div>
-    <div id="enemy"><img src="sein.jpg" alt="" height="150"></div>
+    <div id="startScreen">
+        <h1>Auto Jump Game</h1>
+        <p>Drücke die Leertaste, um zu starten</p>
+    </div>
+    <div id="character"></div>
+    <div id="enemy"></div>
     <div id="score">Score: 0</div>
 
     <script>
         let enemy_left = 1000;
         let on_ground = true;
         let score = 0;
+        let gameStarted = false;
 
-        setInterval(() => {
-            enemy.style.left = enemy_left + 'px';
-            enemy_left -= 5;
-
-            if (on_ground && enemy_left < 100 && enemy_left > 50) {
-                jump();
+        document.addEventListener("keydown", function(event) {
+            if (event.code === "Space" && !gameStarted) {
+                startGame();
             }
+        });
 
-            if (enemy_left < 0) {
-                enemy_left = 1000;
-            }
-        }, 10);
+        function startGame() {
+            gameStarted = true;
+            document.getElementById("startScreen").style.display = "none";
+            document.getElementById("character").style.display = "block";
+            document.getElementById("enemy").style.display = "block";
+            document.getElementById("score").style.display = "block";
+            gameLoop();
+        }
+
+        function gameLoop() {
+            setInterval(() => {
+                enemy.style.left = enemy_left + 'px';
+                enemy_left -= 5;
+
+                if (on_ground && enemy_left < 150 && enemy_left > 50) {
+                    jump();
+                }
+
+                if (enemy_left < -100) { // Gegner verschwindet später
+                    enemy_left = 1000;
+                }
+            }, 10);
+        }
 
         function jump() {
             if (!on_ground) return;
@@ -64,8 +96,11 @@
             
             setTimeout(() => {
                 character.style.top = "500px";
+            }, 500);
+            
+            setTimeout(() => {
                 on_ground = true;
-            }, 400);
+            }, 700);
         }
     </script>
 </body>
