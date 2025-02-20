@@ -43,9 +43,7 @@
     </style>
 </head>
 <body>
-    <iframe id="bg-music" width="0" height="0" src="https://www.youtube.com/embed/mSZXWdKSQNM?autoplay=1&loop=1&playlist=mSZXWdKSQNM" frameborder="0" allow="autoplay"></iframe>
-
-    <div id="startScreen">
+     <div id="startScreen">
         <h1>Auto Evolve Game</h1>
         <p>Allein, ganz auf sich selbst zurückgeworfen....</p>
         <p>Sartre wird immer wieder vom Sein und dem Nichts heimgesucht, er muss ihm entweichen...</p>
@@ -66,10 +64,7 @@
                 startGame();
             }
         });
-document.addEventListener("keydown", () => {
-    if (player && player.playVideo) {
-        player.playVideo();
-    }
+
 });
         function startGame() {
             gameStarted = true;
