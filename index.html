@@ -11,27 +11,37 @@
             text-align: center;
         }
         #character {
-            background-color: black;
-            height: 100px;
-            width: 100px;
             position: absolute;
             top: 500px;
-            transition: top 300ms ease-out;
+            left: 100px;
+            height: 100px;
+            width: 100px;
+            transition: top 400ms ease-out;
             display: none;
         }
         #enemy {
-            background-color: black;
-            height: 100px;
-            width: 100px;
             position: absolute;
             top: 500px;
             left: 1000px;
+            height: 100px;
+            width: 100px;
             display: none;
         }
         #score {
             position: absolute;
             top: 20px;
             left: 20px;
+            display: none;
+        }
+        #quoteBox {
+            position: absolute;
+            bottom: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(255, 255, 255, 0.2);
+            padding: 20px;
+            font-size: 20px;
+            width: 50%;
             display: none;
         }
         #startScreen {
@@ -43,15 +53,22 @@
     </style>
 </head>
 <body>
-     <div id="startScreen">
+    <audio id="bgMusic" loop>
+        <source src="background.mp3" type="audio/mpeg">
+        Dein Browser unterstützt keine Audio-Tags.
+    </audio>
+
+    <div id="startScreen">
         <h1>Auto Evolve Game</h1>
-        <p>Allein, ganz auf sich selbst zurückgeworfen....</p>
+        <p>Allein, ganz auf sich selbst zurückgeworfen...</p>
         <p>Sartre wird immer wieder vom Sein und dem Nichts heimgesucht, er muss ihm entweichen...</p>
         <p>Drücke die Leertaste, um zu starten und lehne Dich zurück</p>
     </div>
-    <div id="character"><img src="sartre.jpg" alt="" height="150"></div>
-    <div id="enemy"><img src="sein.jpg" alt="" height="150"></div>
+    
+    <div id="character"><img src="sartre.jpg" alt="Sartre" height="100"></div>
+    <div id="enemy"><img src="sein.jpg" alt="Sein" height="100"></div>
     <div id="score">Score: 0</div>
+    <div id="quoteBox"></div> <!-- Sartre-Zitate Box -->
 
     <script>
         let enemy_left = 1000;
@@ -59,52 +76,97 @@
         let score = 0;
         let gameStarted = false;
 
+        let character = document.getElementById("character");
+        let enemy = document.getElementById("enemy");
+        let scoreDisplay = document.getElementById("score");
+        let quoteBox = document.getElementById("quoteBox");
+        let bgMusic = document.getElementById("bgMusic");
+
+        let quotes = [
+            "Die Hölle, das sind die anderen.",
+            "Freiheit ist das, was du mit dem machst, was dir angetan wurde.",
+            "Wenn du einsam bist, wenn du allein bist, bist du mit dir selbst zusammen.",
+            "Es gibt keine Realität außer der Aktion.",
+            "Das Bewusstsein erschafft die Welt.",
+            "Existenz geht der Essenz voraus.",
+            "Die Welt existiert, aber sie hat keinen Sinn außer dem, den wir ihr geben."
+        ];
+        
+        let currentQuoteIndex = 0;
+
         document.addEventListener("keydown", function(event) {
-            if (event.code === "Space" && !gameStarted) {
-                startGame();
+            if (event.code === "Space") {
+                if (!gameStarted) {
+                    startGame();
+                } else {
+                    showQuote();
+                }
             }
         });
 
-});
         function startGame() {
             gameStarted = true;
             document.getElementById("startScreen").style.display = "none";
-            document.getElementById("character").style.display = "block";
-            document.getElementById("enemy").style.display = "block";
-            document.getElementById("score").style.display = "block";
+            character.style.display = "block";
+            enemy.style.display = "block";
+            scoreDisplay.style.display = "block";
+            bgMusic.play(); // Musik starten
             gameLoop();
         }
 
         function gameLoop() {
             setInterval(() => {
-                enemy.style.left = enemy_left + 'px';
+                enemy.style.left = enemy_left + "px";
                 enemy_left -= 5;
 
-                if (on_ground && enemy_left < 200 && enemy_left > 50) {
+                if (on_ground && enemy_left < 250 && enemy_left > 50) {
                     jump();
                 }
 
-                if (enemy_left < -100) { // Gegner verschwindet später
+                if (enemy_left < -100) {
                     enemy_left = 1000;
                 }
+
+                checkCollision();
             }, 10);
         }
 
         function jump() {
             if (!on_ground) return;
-            character.style.top = "300px";
             on_ground = false;
+            character.style.top = "280px"; // Höherer Sprung
             score += 5;
-            document.getElementById("score").innerText = "Score: " + score;
-            
+            scoreDisplay.innerText = "Score: " + score;
+
             setTimeout(() => {
                 character.style.top = "500px";
-            }, 500);
-            
-            setTimeout(() => {
                 on_ground = true;
-            }, 800);
+            }, 1000);
+        }
+
+        function showQuote() {
+            let quote = quotes[currentQuoteIndex % quotes.length]; // Endlose Wiederholung der Zitate
+            quoteBox.innerText = `"${quote}"`;
+            quoteBox.style.display = "block";
+            currentQuoteIndex++; // Nächstes Zitat beim nächsten Leertastendruck
+
+            setTimeout(() => {
+                quoteBox.style.display = "none";
+            }, 10000);
+        }
+
+        function checkCollision() {
+            let charTop = parseInt(window.getComputedStyle(character).top);
+            let enemyLeft = parseInt(window.getComputedStyle(enemy).left);
+
+            if (enemyLeft < 150 && enemyLeft > 50 && charTop >= 500) {
+                alert("Vom Sein verschlungen! Score: " + score);
+                location.reload();
+            }
         }
     </script>
 </body>
 </html>
+
+
+
