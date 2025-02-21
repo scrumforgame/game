@@ -27,19 +27,13 @@
             width: 100px;
             display: none;
         }
-        #score {
+        #score, #highscore {
             position: absolute;
-            top: 20px;
             left: 20px;
             display: none;
         }
-        #highscore {
-            position: absolute;
-            top: 50px;
-            left: 20px;
-            display: none;
-            font-size: 20px;
-        }
+        #score { top: 20px; }
+        #highscore { top: 50px; font-size: 20px; }
         #quoteBox {
             position: absolute;
             bottom: 50px;
@@ -57,6 +51,17 @@
             left: 50%;
             transform: translate(-50%, -50%);
         }
+        #nameInputContainer {
+            position: absolute;
+            top: 60%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: none;
+        }
+        input, button {
+            font-size: 18px;
+            padding: 5px;
+        }
     </style>
 </head>
 <body>
@@ -70,13 +75,19 @@
         <p>Allein, ganz auf sich selbst zurückgeworfen...</p>
         <p>Sartre wird immer wieder vom Sein und dem Nichts heimgesucht, er muss ihm entweichen...</p>
         <p>Drücke die Leertaste, um zu starten und lehne Dich zurück</p>
-        <h2>Highscore: <span id="startHighscore">0</span></h2>
+        <h2>Highscore: <span id="startHighscore">0</span> (von <span id="startHighscoreName">---</span>)</h2>
     </div>
-    
+
+    <div id="nameInputContainer">
+        <p>Gib deinen Namen ein:</p>
+        <input type="text" id="playerName" placeholder="Dein Name">
+        <button onclick="savePlayerName()">OK</button>
+    </div>
+
     <div id="character"><img src="sartre.jpg" alt="Sartre" height="100"></div>
     <div id="enemy"><img src="sein.jpg" alt="Sein" height="100"></div>
     <div id="score">Score: 0</div>
-    <div id="highscore">Highscore: 0</div>
+    <div id="highscore">Highscore: <span id="highscoreValue">0</span> (von <span id="highscoreName">---</span>)</div>
     <div id="quoteBox"></div>
 
     <script>
@@ -84,18 +95,27 @@
         let on_ground = true;
         let score = 0;
         let gameStarted = false;
+        let playerName = "";
 
         let character = document.getElementById("character");
         let enemy = document.getElementById("enemy");
         let scoreDisplay = document.getElementById("score");
         let highscoreDisplay = document.getElementById("highscore");
+        let highscoreValueDisplay = document.getElementById("highscoreValue");
+        let highscoreNameDisplay = document.getElementById("highscoreName");
         let startHighscoreDisplay = document.getElementById("startHighscore");
+        let startHighscoreNameDisplay = document.getElementById("startHighscoreName");
         let quoteBox = document.getElementById("quoteBox");
         let bgMusic = document.getElementById("bgMusic");
+        let nameInputContainer = document.getElementById("nameInputContainer");
 
-        let highscore = localStorage.getItem("highscore") || 0; // Lade Highscore aus dem lokalen Speicher
-        startHighscoreDisplay.innerText = highscore; // Zeige Highscore im Startbildschirm
-        highscoreDisplay.innerText = "Highscore: " + highscore; // Zeige Highscore im Spiel
+        let highscore = localStorage.getItem("highscore") || 0;
+        let highscoreName = localStorage.getItem("highscoreName") || "---";
+
+        startHighscoreDisplay.innerText = highscore;
+        startHighscoreNameDisplay.innerText = highscoreName;
+        highscoreValueDisplay.innerText = highscore;
+        highscoreNameDisplay.innerText = highscoreName;
 
         let quotes = [
             "Die Hölle, das sind die anderen.",
@@ -112,16 +132,29 @@
         document.addEventListener("keydown", function(event) {
             if (event.code === "Space") {
                 if (!gameStarted) {
-                    startGame();
+                    askForName();
                 } else {
                     showQuote();
                 }
             }
         });
 
+        function askForName() {
+            document.getElementById("startScreen").style.display = "none";
+            nameInputContainer.style.display = "block";
+        }
+
+        function savePlayerName() {
+            let input = document.getElementById("playerName").value.trim();
+            if (input) {
+                playerName = input;
+                nameInputContainer.style.display = "none";
+                startGame();
+            }
+        }
+
         function startGame() {
             gameStarted = true;
-            document.getElementById("startScreen").style.display = "none";
             character.style.display = "block";
             enemy.style.display = "block";
             scoreDisplay.style.display = "block";
@@ -150,14 +183,17 @@
         function jump() {
             if (!on_ground) return;
             on_ground = false;
-            character.style.top = "280px"; // Höherer Sprung
+            character.style.top = "280px";
             score += 5;
             scoreDisplay.innerText = "Score: " + score;
 
             if (score > highscore) {
                 highscore = score;
+                highscoreName = playerName;
                 localStorage.setItem("highscore", highscore);
-                highscoreDisplay.innerText = "Highscore: " + highscore;
+                localStorage.setItem("highscoreName", highscoreName);
+                highscoreValueDisplay.innerText = highscore;
+                highscoreNameDisplay.innerText = highscoreName;
             }
 
             setTimeout(() => {
@@ -167,7 +203,7 @@
         }
 
         function showQuote() {
-            let quote = quotes[currentQuoteIndex % quotes.length]; // Endlose Wiederholung der Zitate
+            let quote = quotes[currentQuoteIndex % quotes.length];
             quoteBox.innerText = `"${quote}"`;
             quoteBox.style.display = "block";
             currentQuoteIndex++;
