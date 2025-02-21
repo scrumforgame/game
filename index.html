@@ -45,22 +45,23 @@
             width: 50%;
             display: none;
         }
-        #startScreen {
+        #highscoreBubble {
+            position: absolute;
+            top: 430px;
+            left: 150px;
+            background-color: white;
+            color: black;
+            padding: 10px;
+            border-radius: 10px;
+            font-size: 16px;
+            display: none;
+        }
+        #nameInputContainer {
+            display: none;
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-        }
-        #nameInputContainer {
-            position: absolute;
-            top: 60%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            display: none;
-        }
-        input, button {
-            font-size: 18px;
-            padding: 5px;
         }
     </style>
 </head>
@@ -72,19 +73,18 @@
 
     <div id="startScreen">
         <h1>Auto Evolve Game</h1>
-        <p>Allein, ganz auf sich selbst zurückgeworfen...</p>
-        <p>Sartre wird immer wieder vom Sein und dem Nichts heimgesucht, er muss ihm entweichen...</p>
-        <p>Drücke die Leertaste, um zu starten und lehne Dich zurück</p>
+        <p>Drücke die Leertaste, um zu starten</p>
         <h2>Highscore: <span id="startHighscore">0</span> (von <span id="startHighscoreName">---</span>)</h2>
     </div>
 
     <div id="nameInputContainer">
         <p>Gib deinen Namen ein:</p>
-        <input type="text" id="playerName" placeholder="Dein Name">
-        <button onclick="savePlayerName()">OK</button>
+        <input type="text" id="nameInput" placeholder="Dein Name">
+        <button onclick="setPlayerName()">OK</button>
     </div>
 
     <div id="character"><img src="sartre.jpg" alt="Sartre" height="100"></div>
+    <div id="highscoreBubble">Wow, super. Neuer Highscore!</div>
     <div id="enemy"><img src="sein.jpg" alt="Sein" height="100"></div>
     <div id="score">Score: 0</div>
     <div id="highscore">Highscore: <span id="highscoreValue">0</span> (von <span id="highscoreName">---</span>)</div>
@@ -106,8 +106,10 @@
         let startHighscoreDisplay = document.getElementById("startHighscore");
         let startHighscoreNameDisplay = document.getElementById("startHighscoreName");
         let quoteBox = document.getElementById("quoteBox");
+        let highscoreBubble = document.getElementById("highscoreBubble");
         let bgMusic = document.getElementById("bgMusic");
         let nameInputContainer = document.getElementById("nameInputContainer");
+        let nameInput = document.getElementById("nameInput");
 
         let highscore = localStorage.getItem("highscore") || 0;
         let highscoreName = localStorage.getItem("highscoreName") || "---";
@@ -118,43 +120,57 @@
         highscoreNameDisplay.innerText = highscoreName;
 
         let quotes = [
-            "Die Hölle, das sind die anderen.",
-            "Freiheit ist das, was du mit dem machst, was dir angetan wurde.",
-            "Wenn du einsam bist, wenn du allein bist, bist du mit dir selbst zusammen.",
-            "Es gibt keine Realität außer der Aktion.",
-            "Das Bewusstsein erschafft die Welt.",
-            "Existenz geht der Essenz voraus.",
-            "Die Welt existiert, aber sie hat keinen Sinn außer dem, den wir ihr geben."
+        "Die Hölle, das sind die anderen.",
+        "Freiheit ist das, was du mit dem machst, was dir angetan wurde.",
+        "Wenn du einsam bist, wenn du allein bist, bist du mit dir selbst zusammen.",
+        "Es gibt keine Realität außer der Aktion.",
+        "Das Bewusstsein erschafft die Welt.",
+        "Existenz geht der Essenz voraus.",
+        "Die Welt existiert, aber sie hat keinen Sinn außer dem, den wir ihr geben.",
+        "Ein Mensch ist nichts anderes als das, wozu er sich macht.",
+        "Gott ist tot. Aber der Mensch hat sich nicht befreit.",
+        "Der Mensch ist zur Freiheit verurteilt.",
+        "Alles ist überflüssig: das Leben, die Menschen und diese Welt.",
+        "Glück ist nicht das, was uns einfach zufällt – es ist eine Wahl.",
+        "Angst ist die Ohnmacht der Freiheit.",
+        "Die Vergangenheit ist ein Gespenst, die Zukunft eine Illusion.",
+        "Ein Schriftsteller ist ein Mensch, der andere Menschen zum Denken zwingt.",
+        "Man ist niemals so frei, wie man glaubt.",
+        "Das Leben hat nur den Sinn, den wir ihm geben.",
+        "Ich bin verantwortlich für das, was ich bin.",
+        "Ein Intellektueller ist jemand, der sich einmischt.",
+        "Es gibt keine Liebe außer der, die sich in Taten zeigt.",
+        "Jede Entscheidung ist ein Sprung ins Ungewisse.",
+        "Der Mensch definiert sich durch sein Handeln.",
+        "Die größte Illusion ist die, dass wir nicht wählen müssen.",
+        "Der Mensch ist nichts anderes als ein Entwurf.",
+        "Glauben heißt: Die eigene Freiheit verleugnen.",
+        "Verantwortung zu tragen ist der Preis der Freiheit.",
+        "Das Leben ist eine ewige Improvisation."
         ];
         
         let currentQuoteIndex = 0;
+        let highscoreAchieved = false;
 
         document.addEventListener("keydown", function(event) {
             if (event.code === "Space") {
                 if (!gameStarted) {
-                    askForName();
+                    nameInputContainer.style.display = "block";
                 } else {
                     showQuote();
                 }
             }
         });
 
-        function askForName() {
-            document.getElementById("startScreen").style.display = "none";
-            nameInputContainer.style.display = "block";
-        }
-
-        function savePlayerName() {
-            let input = document.getElementById("playerName").value.trim();
-            if (input) {
-                playerName = input;
-                nameInputContainer.style.display = "none";
-                startGame();
-            }
+        function setPlayerName() {
+            playerName = nameInput.value.trim() || "Unbekannt";
+            nameInputContainer.style.display = "none";
+            startGame();
         }
 
         function startGame() {
             gameStarted = true;
+            document.getElementById("startScreen").style.display = "none";
             character.style.display = "block";
             enemy.style.display = "block";
             scoreDisplay.style.display = "block";
@@ -187,6 +203,15 @@
             score += 5;
             scoreDisplay.innerText = "Score: " + score;
 
+            checkHighscore();
+
+            setTimeout(() => {
+                character.style.top = "500px";
+                on_ground = true;
+            }, 1000);
+        }
+
+        function checkHighscore() {
             if (score > highscore) {
                 highscore = score;
                 highscoreName = playerName;
@@ -194,12 +219,19 @@
                 localStorage.setItem("highscoreName", highscoreName);
                 highscoreValueDisplay.innerText = highscore;
                 highscoreNameDisplay.innerText = highscoreName;
-            }
 
+                if (!highscoreAchieved) {
+                    showHighscoreBubble();
+                    highscoreAchieved = true;
+                }
+            }
+        }
+
+        function showHighscoreBubble() {
+            highscoreBubble.style.display = "block";
             setTimeout(() => {
-                character.style.top = "500px";
-                on_ground = true;
-            }, 1000);
+                highscoreBubble.style.display = "none";
+            }, 3000);
         }
 
         function showQuote() {
@@ -211,16 +243,6 @@
             setTimeout(() => {
                 quoteBox.style.display = "none";
             }, 10000);
-        }
-
-        function checkCollision() {
-            let charTop = parseInt(window.getComputedStyle(character).top);
-            let enemyLeft = parseInt(window.getComputedStyle(enemy).left);
-
-            if (enemyLeft < 150 && enemyLeft > 50 && charTop >= 500) {
-                alert("Vom Sein verschlungen! Score: " + score);
-                location.reload();
-            }
         }
     </script>
 </body>
